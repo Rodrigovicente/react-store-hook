@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef } from 'react'
 import { useStore } from '../hooks/useStore'
 
 const TestB: React.FC = () => {
@@ -6,11 +6,7 @@ const TestB: React.FC = () => {
 
 	const [state, dispatch] = useStore('test_b')
 
-	const [num, setNum] = useState('')
-
-	const handleCharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setNum(e.target.value)
-	}
+	const inputRef = useRef<HTMLInputElement>(null)
 
 	return (
 		<>
@@ -20,13 +16,19 @@ const TestB: React.FC = () => {
 				{state.counter}
 			</p>
 
-			<input type="number" value={num} onChange={handleCharChange} />
+			<input type="number" ref={inputRef} />
 			<br />
 			<br />
-			<button type="button" onClick={() => dispatch('ADD', num)}>
+			<button
+				type="button"
+				onClick={() => dispatch('ADD', inputRef.current?.value ?? 0)}
+			>
 				Add
 			</button>
-			<button type="button" onClick={() => dispatch('SET', num)}>
+			<button
+				type="button"
+				onClick={() => dispatch('SET', inputRef.current?.value ?? 0)}
+			>
 				Set
 			</button>
 			<button type="button" onClick={() => dispatch('INCREMENT')}>

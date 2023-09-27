@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useStore } from '../hooks/useStore'
 
 const TestA: React.FC = () => {
@@ -10,11 +10,7 @@ const TestA: React.FC = () => {
 		dispatch('MAKE_PHRASE', 'd')
 	}, [])
 
-	const [char, setChar] = useState('')
-
-	const handleCharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setChar(e.target.value)
-	}
+	const inputRef = useRef<HTMLInputElement>(null)
 
 	return (
 		<>
@@ -28,15 +24,13 @@ const TestA: React.FC = () => {
 					'"'}
 			</p>
 
-			<input
-				type="text"
-				maxLength={1}
-				value={char}
-				onChange={handleCharChange}
-			/>
+			<input type="text" maxLength={1} ref={inputRef} />
 			<br />
 			<br />
-			<button type="button" onClick={() => dispatch('ADD_CHAR', char)}>
+			<button
+				type="button"
+				onClick={() => dispatch('ADD_CHAR', inputRef.current?.value ?? '')}
+			>
 				Add
 			</button>
 			<button type="button" onClick={() => dispatch('REMOVE_LAST_CHAR')}>

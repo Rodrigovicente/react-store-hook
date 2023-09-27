@@ -47,6 +47,17 @@ export const useStore: (
 
 		const newState = action(globalStores[storeName], payload)
 
+		let isUnchanged = true
+
+		for (const key in newState) {
+			if (globalStores[storeName][key] !== newState[key]) {
+				isUnchanged = false
+				break
+			}
+		}
+
+		if (isUnchanged) return
+
 		globalStores[storeName] = { ...globalStores[storeName], ...newState }
 
 		for (const listener of listeners[storeName]) {
