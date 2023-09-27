@@ -2,19 +2,17 @@ import { useState, useEffect } from 'react'
 
 type GlobalStores = Record<string, Record<string, any>>
 
-type GlobalActions = Record<
-	string,
-	Record<
-		string,
-		(store: Record<string, any>, payload: any) => Record<string, any>
-	>
->
+type Action = (store: Record<string, any>, payload?: any) => Record<string, any>
+
+type GlobalActions = Record<string, Record<string, Action>>
 
 const globalStores: GlobalStores = {}
 const listeners: Record<string, ((state: any) => void)[]> = {}
 const globalActions: GlobalActions = {}
 
-export const useStore = (storeName: string) => {
+export const useStore: (
+	storeName: string
+) => [any, (actionId: string, payload?: any) => void] = (storeName: string) => {
 	if (storeName === undefined) throw new Error('No store name provided')
 	/*
 	let state
@@ -33,12 +31,16 @@ export const useStore = (storeName: string) => {
 		globalActions[storeName] = {}
 	}
 
+	if (listeners[storeName] === undefined) {
+		listeners[storeName] = []
+	}
+
 	const state = globalStores[storeName]
 	/*}*/
 
 	const setState = useState(state)[1]
 
-	const dispatch = (actionId: string, payload: any) => {
+	const dispatch = (actionId: string, payload?: any) => {
 		const action = globalActions[storeName][actionId]
 
 		if (action === undefined) throw new Error(`No action found for ${actionId}`)
@@ -62,15 +64,12 @@ export const useStore = (storeName: string) => {
 		}
 	}, [setState, storeName])
 
-	return [state, dispatch]
+	return [globalStores[storeName], dispatch]
 }
 
 export const initStore = (
 	storeName: string,
-	actions: Record<
-		string,
-		(globalStores: GlobalStores, storeName: string) => Record<string, any>
-	>,
+	actions: Record<string, Action>,
 	initialState?: Record<string, any>
 ) => {
 	if (initialState) {
